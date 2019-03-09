@@ -33,8 +33,41 @@ class ViewController: UIViewController, WKNavigationDelegate {
         // activates navigation gestures
         webView.allowsBackForwardNavigationGestures = true
         
+        // create button to select site to load
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Open", style: .plain, target: self, action: #selector(openTapped))
+        
+        
+        
     }
 
+    @objc func openTapped() {
+        // create an alert controller in the form of an action sheet
+        let ac = UIAlertController(title: "Open page...", message: nil, preferredStyle: .actionSheet)
+        // add actions to open websites
+        ac.addAction(UIAlertAction(title: "nfl.com", style: .default, handler: openPage))
+        ac.addAction(UIAlertAction(title: "patriots.com", style: .default, handler: openPage))
+        ac.addAction(UIAlertAction(title: "chiefs.com", style: .default, handler: openPage))
+        ac.addAction(UIAlertAction(title: "dallascowboys.com", style: .default, handler: openPage))
+        // add action to cancel
+        ac.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        ac.popoverPresentationController?.barButtonItem = self.navigationItem.rightBarButtonItem
+        present(ac, animated: true)
+    }
+    
+    // method that gets called when user selects the action sheet
+    func openPage(action: UIAlertAction) {
+        // set the URL equal to the button selected by the user
+        let url = URL(string: "https://\(action.title!)")!
+        // load the webpage
+        webView.load(URLRequest(url: url))
+    }
+    
+    // when the loading phase is completed
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        // set the view controller title equal to the title of the webView
+        title = webView.title
+    }
+    
 
 }
 
