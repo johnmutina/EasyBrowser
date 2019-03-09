@@ -13,6 +13,8 @@ import WebKit
 class ViewController: UIViewController, WKNavigationDelegate {
     //create a variable to store our web view
     var webView: WKWebView!
+    //create a variable to store our progress view
+    var progressView: UIProgressView!
     
     override func loadView() {
         // assign a new instance of WKWebView to our variable
@@ -32,9 +34,18 @@ class ViewController: UIViewController, WKNavigationDelegate {
         webView.load(URLRequest(url: url))
         // activates navigation gestures
         webView.allowsBackForwardNavigationGestures = true
-        
+        // add a KVO to determine changes in web pages' loading progress
+        webView.addObserver(self, forKeyPath: #keyPath(WKWebView.estimatedProgress), options: .new, context: nil)
         // create button to select site to load
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Open", style: .plain, target: self, action: #selector(openTapped))
+        
+        // create a progress view with default style
+        progressView = UIProgressView(progressViewStyle: .default)
+        // make it as big as the container
+        progressView.sizeToFit()
+        // wrap the progressView into a button to fit it into the toolbar
+        let progressButton = UIBarButtonItem(customView: progressView)
+        
         
         // create a spacer that creates white space in toolbar
         let spacer = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
@@ -42,7 +53,7 @@ class ViewController: UIViewController, WKNavigationDelegate {
         let refresh = UIBarButtonItem(barButtonSystemItem: .refresh, target: webView, action: #selector(webView.reload))
         
         // assign toolbarItems the buttons we created above as an array
-        toolbarItems = [spacer, refresh]
+        toolbarItems = [progressButton, spacer, refresh]
         // unhide the toolbar
         navigationController?.isToolbarHidden = false
         
@@ -76,6 +87,14 @@ class ViewController: UIViewController, WKNavigationDelegate {
         title = webView.title
     }
     
-
+    // create mandatory observeValue function to use KVO
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        // if the observer's path is estimated progress
+        if keyPath == "estimatedProgress" {
+            // set the progress bar value equals to the estimated progress of page loading
+            progressView.progress = Float(webView.estimatedProgress)
+        }
+    }
+    
 }
 
