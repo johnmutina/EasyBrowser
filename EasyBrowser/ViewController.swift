@@ -15,6 +15,8 @@ class ViewController: UIViewController, WKNavigationDelegate {
     var webView: WKWebView!
     //create a variable to store our progress view
     var progressView: UIProgressView!
+    //array of the websites we want users to be able to visit
+    var websites = ["nfl.com", "patriots.com", "chiefs.com", "dallascowboys.com"]
     
     override func loadView() {
         // assign a new instance of WKWebView to our variable
@@ -29,7 +31,7 @@ class ViewController: UIViewController, WKNavigationDelegate {
         super.viewDidLoad()
         
         // initialize a url variable
-        let url = URL(string: "https://www.nfl.com")!
+        let url = URL(string: "https://\(websites[0])")!
         // loads the url
         webView.load(URLRequest(url: url))
         // activates navigation gestures
@@ -62,11 +64,10 @@ class ViewController: UIViewController, WKNavigationDelegate {
     @objc func openTapped() {
         // create an alert controller in the form of an action sheet
         let ac = UIAlertController(title: "Open page...", message: nil, preferredStyle: .actionSheet)
-        // add actions to open websites
-        ac.addAction(UIAlertAction(title: "nfl.com", style: .default, handler: openPage))
-        ac.addAction(UIAlertAction(title: "patriots.com", style: .default, handler: openPage))
-        ac.addAction(UIAlertAction(title: "chiefs.com", style: .default, handler: openPage))
-        ac.addAction(UIAlertAction(title: "dallascowboys.com", style: .default, handler: openPage))
+        // add action to open each website
+        for website in websites {
+            ac.addAction(UIAlertAction(title: website, style: .default, handler: openPage))
+        }
         // add action to cancel
         ac.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         ac.popoverPresentationController?.barButtonItem = self.navigationItem.rightBarButtonItem
@@ -94,6 +95,26 @@ class ViewController: UIViewController, WKNavigationDelegate {
             // set the progress bar value equals to the estimated progress of page loading
             progressView.progress = Float(webView.estimatedProgress)
         }
+    }
+    
+    // create a policy to block or allow navigation
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        // capture the url requested
+        let url = navigationAction.request.url
+        
+        // if the url contains one of the websites allowed in our array
+        if let host = url?.host {
+            for website in websites {
+                if host.contains(website) {
+                    // allow navigation
+                    decisionHandler(.allow)
+                    // exit the method
+                    return
+                }
+            }
+        }
+        // otherwise block it
+        decisionHandler(.cancel)
     }
     
 }
