@@ -36,7 +36,15 @@ class ViewController: UIViewController, WKNavigationDelegate {
         // create button to select site to load
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Open", style: .plain, target: self, action: #selector(openTapped))
         
+        // create a spacer that creates white space in toolbar
+        let spacer = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        // create refresh button
+        let refresh = UIBarButtonItem(barButtonSystemItem: .refresh, target: webView, action: #selector(webView.reload))
         
+        // assign toolbarItems the buttons we created above as an array
+        toolbarItems = [spacer, refresh]
+        // unhide the toolbar
+        navigationController?.isToolbarHidden = false
         
     }
 
